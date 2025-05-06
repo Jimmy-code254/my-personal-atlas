@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { School, Info, Check, Loader2 } from "lucide-react";
+import { School, Info, Check, Loader2, AlertTriangle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "../contexts/AuthContext";
@@ -31,14 +30,36 @@ const Register = () => {
 
   // Check if auth context is available
   if (!auth) {
-    console.error("Auth context is not available");
+    console.error("Auth context is not available in Register");
     return (
-      <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertDescription className="py-2">
-            Authentication service is not available. Please try again later or contact support.
-          </AlertDescription>
-        </Alert>
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex flex-col">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-800 shadow-sm">
+          <div className="container mx-auto px-4 py-4">
+            <Link to="/" className="flex items-center gap-2 w-fit">
+              <School className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">JimPortal</h1>
+            </Link>
+          </div>
+        </header>
+
+        <main className="flex-1 flex items-center justify-center p-6">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="py-2">
+              Authentication service is not available. This could be due to Supabase not being properly configured.
+              Please check that your environment variables are set correctly.
+            </AlertDescription>
+          </Alert>
+        </main>
+
+        <footer className="bg-white dark:bg-gray-800 py-4 border-t dark:border-gray-700">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              &copy; 2025 JimPortal. All rights reserved.
+            </p>
+          </div>
+        </footer>
       </div>
     );
   }
@@ -110,6 +131,7 @@ const Register = () => {
     
     try {
       setIsLoading(true);
+      const { register } = auth;
       const success = await register(
         formData.email,
         formData.password,
@@ -156,6 +178,16 @@ const Register = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Show an error message if Supabase is not configured properly */}
+              {auth.configError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Supabase is not properly configured. Registration is disabled.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <Tabs defaultValue="student" className="w-full mb-6">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="student">Student</TabsTrigger>
