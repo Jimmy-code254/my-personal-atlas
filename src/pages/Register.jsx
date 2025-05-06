@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { register } = useAuth();
+  const auth = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
@@ -28,6 +28,22 @@ const Register = () => {
     role: "student",
     schoolCode: ""
   });
+
+  // Check if auth context is available
+  if (!auth) {
+    console.error("Auth context is not available");
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription className="py-2">
+            Authentication service is not available. Please try again later or contact support.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  const { register } = auth;
 
   const handleChange = (e) => {
     setFormData({
