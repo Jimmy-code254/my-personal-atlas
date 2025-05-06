@@ -1,130 +1,108 @@
 
-import { DashboardLayout } from "@/components/Dashboard/DashboardLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { useAuth } from "../contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Book, Clock, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Book, Clock, Calendar, Users } from "lucide-react";
 
 const Courses = () => {
-  // Mock data for courses
-  const courses = [
+  const auth = useAuth();
+
+  // Check if auth context is available
+  if (!auth || !auth.user) {
+    return (
+      <div className="container mx-auto p-4">
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>
+            User authentication data is not available. Please try logging in again.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  const courseData = [
     {
       id: 1,
-      title: "Mathematics",
-      description: "Algebra, Calculus, and Geometry",
-      teacher: "Dr. Sarah Johnson",
+      title: "Introduction to Computer Science",
+      instructor: "Dr. Alan Turing",
+      schedule: "Mon, Wed, Fri 10:00 - 11:30 AM",
       students: 28,
       progress: 65,
-      time: "Mon, Wed, Fri 9:00 AM",
-      color: "bg-blue-100 text-blue-800"
+      description: "Foundational principles of computer science, algorithms, and computational thinking."
     },
     {
       id: 2,
-      title: "Physics",
-      description: "Mechanics, Thermodynamics, and Electromagnetism",
-      teacher: "Mr. Robert Chen",
-      students: 24,
+      title: "Advanced Mathematics",
+      instructor: "Dr. Grace Hopper",
+      schedule: "Tue, Thu 1:00 - 2:30 PM",
+      students: 22,
       progress: 42,
-      time: "Tue, Thu 11:00 AM",
-      color: "bg-purple-100 text-purple-800"
+      description: "In-depth study of calculus, linear algebra, and discrete mathematics."
     },
     {
       id: 3,
-      title: "English Literature",
-      description: "Poetry, Prose, and Drama",
-      teacher: "Mrs. Emily Barnes",
-      students: 32,
+      title: "History of Ancient Civilizations",
+      instructor: "Prof. Margaret Hamilton",
+      schedule: "Mon, Wed 3:00 - 4:30 PM",
+      students: 35,
       progress: 78,
-      time: "Mon, Wed 2:00 PM",
-      color: "bg-green-100 text-green-800"
+      description: "Exploration of ancient cultures, their rise, achievements, and legacies."
     },
-    {
-      id: 4,
-      title: "Chemistry",
-      description: "Organic and Inorganic Chemistry",
-      teacher: "Dr. Michael Wong",
-      students: 26,
-      progress: 51,
-      time: "Tue, Thu 1:30 PM",
-      color: "bg-amber-100 text-amber-800"
-    },
-    {
-      id: 5,
-      title: "History",
-      description: "World History and African History",
-      teacher: "Mrs. Lily Odhiambo",
-      students: 30,
-      progress: 85,
-      time: "Wed, Fri 10:30 AM",
-      color: "bg-red-100 text-red-800"
-    },
-    {
-      id: 6,
-      title: "Computer Science",
-      description: "Programming, Algorithms, and Data Structures",
-      teacher: "Mr. James Mwangi",
-      students: 22,
-      progress: 60,
-      time: "Mon, Thu 3:00 PM",
-      color: "bg-cyan-100 text-cyan-800"
-    }
   ];
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800">My Courses</h2>
-            <p className="text-gray-600">View and manage your enrolled courses</p>
-          </div>
-          <Button>
-            <Book className="mr-2 h-4 w-4" />
-            Browse All Courses
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map(course => (
-            <Link to={`/courses/${course.id}`} key={course.id} className="group">
-              <Card className="h-full transition-all hover:shadow-md">
-                <CardHeader className={`${course.color} rounded-t-lg`}>
-                  <CardTitle>{course.title}</CardTitle>
-                  <CardDescription className="text-gray-700">{course.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <p className="font-medium">{course.teacher}</p>
-                  
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center text-sm">
-                      <Clock className="mr-2 h-4 w-4 text-gray-500" />
-                      <span>{course.time}</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <Users className="mr-2 h-4 w-4 text-gray-500" />
-                      <span>{course.students} students</span>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm text-gray-600">Progress</span>
-                      <span className="text-sm font-medium">{course.progress}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${course.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold">My Courses</h2>
+        <Button>Join New Course</Button>
       </div>
-    </DashboardLayout>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {courseData.map((course) => (
+          <Card key={course.id}>
+            <CardHeader>
+              <CardTitle>{course.title}</CardTitle>
+              <CardDescription>{course.instructor}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {course.description}
+                </p>
+                
+                <div className="flex items-center text-sm">
+                  <Clock className="mr-2 h-4 w-4 opacity-70" />
+                  <span>{course.schedule}</span>
+                </div>
+                
+                <div className="flex items-center text-sm">
+                  <Users className="mr-2 h-4 w-4 opacity-70" />
+                  <span>{course.students} students enrolled</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{course.progress}%</span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full dark:bg-gray-700">
+                    <div 
+                      className="h-2 bg-blue-600 rounded-full" 
+                      style={{ width: `${course.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full">View Course</Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 };
 

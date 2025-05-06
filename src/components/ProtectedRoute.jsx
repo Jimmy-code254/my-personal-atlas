@@ -7,7 +7,29 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, loading, configError } = useAuth();
+  const auth = useAuth();
+  
+  if (!auth) {
+    console.error("Auth context is not available in ProtectedRoute");
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Authentication Error</AlertTitle>
+          <AlertDescription className="mt-2">
+            <p className="mb-4">
+              Authentication service is not available. Please try again later or contact support.
+            </p>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Reload Page
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+  
+  const { isAuthenticated, loading, configError } = auth;
 
   if (loading) {
     return (

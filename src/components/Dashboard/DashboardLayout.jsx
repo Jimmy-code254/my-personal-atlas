@@ -13,6 +13,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   SidebarProvider,
@@ -35,11 +36,29 @@ export function DashboardLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, userRole, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const [searchQuery, setSearchQuery] = useState("");
+  const auth = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(3);
+  
+  // Check if auth and theme contexts are available
+  if (!auth) {
+    console.error("Auth context is not available");
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription className="py-2">
+            Authentication service is not available. Please try again later or contact support.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+  
+  const { user, userRole, logout } = auth;
+  // Access theme context safely
+  const themeContext = useTheme();
+  const theme = themeContext?.theme || "light";
+  const toggleTheme = themeContext?.toggleTheme || (() => {});
 
   const handleLogout = () => {
     logout();
@@ -56,12 +75,14 @@ export function DashboardLayout({ children }) {
       setSearchQuery("");
     }
   };
+  
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getInitials = () => {
     if (user?.user_metadata?.first_name && user?.user_metadata?.last_name) {
       return `${user.user_metadata.first_name[0]}${user.user_metadata.last_name[0]}`;
     }
-    return user?.email?.substring(0, 2).toUpperCase() || "U";
+    return user?.email?.substring(0, 2)?.toUpperCase() || "U";
   };
 
   // Navigation items based on user role
