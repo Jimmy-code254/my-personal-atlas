@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { School, ChevronLeft, ChevronRight, FileUpload, Calendar, Loader2, CheckCircle } from "lucide-react";
+import { School, ChevronLeft, ChevronRight, Upload, Calendar, Loader2, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "../lib/supabase";

@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTheme } from "../contexts/ThemeContext";
-import { Sun, Moon, Bell, Shield, User, Language, Palette, Mail, Key } from "lucide-react";
+import { Sun, Moon, Bell, Shield, User, Globe, Palette, Mail, Key } from "lucide-react";
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
