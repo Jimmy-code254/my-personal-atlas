@@ -44,6 +44,9 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           });
           if (onLogin) onLogin();
           navigate("/dashboard");
+        } else {
+          // Handle failed login
+          setError("Invalid username or password");
         }
       } else {
         // Fallback for demo mode
@@ -71,7 +74,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="username">Email</Label>
+        <Label htmlFor="username" className="text-gray-800 dark:text-gray-200">Email</Label>
         <Input 
           id="username"
           type="text" 
@@ -82,7 +85,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-gray-800 dark:text-gray-200">Password</Label>
         <Input 
           id="password"
           type="password" 
@@ -101,13 +104,13 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           />
           <Label 
             htmlFor="remember" 
-            className="text-sm font-normal cursor-pointer"
+            className="text-sm font-normal cursor-pointer text-gray-700 dark:text-gray-300"
           >
             Remember me
           </Label>
         </div>
         
-        <Button type="button" variant="link" className="p-0 h-auto text-sm">
+        <Button type="button" variant="link" className="p-0 h-auto text-sm text-blue-600 dark:text-blue-400">
           Forgot password?
         </Button>
       </div>
