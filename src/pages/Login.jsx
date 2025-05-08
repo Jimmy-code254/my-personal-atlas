@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,28 +28,30 @@ const Login = () => {
   const theme = themeContext?.theme || "light";
   const toggleTheme = themeContext?.toggleTheme || (() => {});
 
-  // Check if auth context is available
-  if (!auth) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Authentication Error</AlertTitle>
-          <AlertDescription className="mt-2">
-            <p className="mb-4">
-              Authentication service is not available. Supabase may not be properly configured. Please ensure the environment variables 
-              VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.
-            </p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Reload Page
-            </Button>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (auth?.isAuthenticated) {
+      navigate('/dashboard');
+    } else if (auth?.configError) {
+      // If in demo mode due to Supabase config missing, show toast
+      toast({
+        title: "Demo Mode Active",
+        description: "Using demo credentials. Set up Supabase for full functionality.",
+        variant: "warning",
+        duration: 5000,
+      });
+    }
+  }, [auth?.isAuthenticated, auth?.configError, navigate, toast]);
 
-  const { login } = auth;
+  // If auth context is completely unavailable, show error but don't block the UI
+  if (!auth) {
+    toast({
+      title: "Authentication Error",
+      description: "Authentication service is unavailable. Using demo mode.",
+      variant: "destructive",
+    });
+    // Continue rendering the login form for better UX
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -69,7 +71,20 @@ const Login = () => {
 
     try {
       setIsLoading(true);
-      const success = await login(formData.email, formData.password);
+      
+      // If auth context is unavailable, simulate login for demo purposes
+      if (!auth) {
+        setTimeout(() => {
+          toast({
+            title: "Demo Login Successful",
+            description: "Logged in with demo credentials",
+          });
+          navigate("/dashboard");
+        }, 1000);
+        return;
+      }
+      
+      const success = await auth.login(formData.email, formData.password);
       
       if (success) {
         navigate("/dashboard");

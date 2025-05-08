@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface LoginFormProps {
-  onLogin: () => void;
+  onLogin?: () => void;
 }
 
 export function LoginForm({ onLogin }: LoginFormProps) {
@@ -14,8 +16,11 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!username || !password) {
@@ -23,10 +28,28 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       return;
     }
 
-    // In a real app, this would be replaced with Supabase auth
-    // For now, let's simulate a successful login
+    setIsLoading(true);
     setError("");
-    onLogin();
+
+    try {
+      // If we have auth context, use it
+      if (auth) {
+        const success = await auth.login(username, password);
+        if (success) {
+          if (onLogin) onLogin();
+          navigate("/dashboard");
+        }
+      } else {
+        // Fallback for demo mode
+        if (onLogin) onLogin();
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An unexpected error occurred during login");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,7 +61,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="username">Email</Label>
         <Input 
           id="username"
           type="text" 
@@ -79,8 +102,8 @@ export function LoginForm({ onLogin }: LoginFormProps) {
         </Button>
       </div>
       
-      <Button type="submit" className="w-full">
-        Sign In
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "Signing in..." : "Sign In"}
       </Button>
     </form>
   );

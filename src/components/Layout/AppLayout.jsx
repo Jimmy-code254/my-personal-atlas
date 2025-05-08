@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   School, Home, Book, ClipboardList, Calendar, MessageSquare, User, 
   Settings, LogOut, Bell, Search, Users, GraduationCap, CheckSquare,
-  FileText, Sun, Moon, AlertTriangle
+  FileText, Sun, Moon, AlertTriangle, X, Menu as MenuIcon
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -236,7 +235,7 @@ const AppLayout = ({ children }) => {
                 {isMobileMenuOpen ? (
                   <X className="h-5 w-5" />
                 ) : (
-                  <Menu className="h-5 w-5" />
+                  <MenuIcon className="h-5 w-5" />
                 )}
               </Button>
               

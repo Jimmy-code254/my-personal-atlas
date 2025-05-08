@@ -1,31 +1,20 @@
-
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import AppLayout from "./Layout/AppLayout";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const ProtectedRoute = () => {
   const auth = useAuth();
   
+  // If auth context is not available, still show the app but in demo mode
+  // This prevents blank screens when Supabase isn't configured
   if (!auth) {
     console.error("Auth context is not available in ProtectedRoute");
+    // Return AppLayout with children to ensure the UI is visible even without auth
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Authentication Error</AlertTitle>
-          <AlertDescription className="mt-2">
-            <p className="mb-4">
-              Authentication service is not available. Please try again later or contact support.
-            </p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Reload Page
-            </Button>
-          </AlertDescription>
-        </Alert>
-      </div>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
     );
   }
   
@@ -40,13 +29,22 @@ const ProtectedRoute = () => {
     );
   }
 
-  // Even if there's a config error, we'll still render the app in demo mode
-  // instead of showing a blocking error screen
-  if (!isAuthenticated) {
+  // If there's a config error (Supabase not configured), still show the app in demo mode
+  // instead of redirecting to login, which would create a login loop
+  if (configError) {
+    return (
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
+    );
+  }
+
+  // If not authenticated and no config error, redirect to login
+  if (!isAuthenticated && !configError) {
     return <Navigate to="/login" replace />;
   }
 
-  // Render the AppLayout with Outlet (children routes) regardless of config status
+  // Otherwise, render the AppLayout with Outlet (children routes)
   return <AppLayout><Outlet /></AppLayout>;
 };
 
