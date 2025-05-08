@@ -1,7 +1,7 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { DashboardLayout } from "./Dashboard/DashboardLayout";
+import AppLayout from "./Layout/AppLayout";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -40,35 +40,14 @@ const ProtectedRoute = () => {
     );
   }
 
-  if (configError) {
-    return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Configuration Error</AlertTitle>
-          <AlertDescription className="mt-2">
-            <p className="mb-4">
-              Supabase configuration is missing. Please make sure the environment variables 
-              VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.
-            </p>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              Reload Page
-            </Button>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
+  // Even if there's a config error, we'll still render the app in demo mode
+  // instead of showing a blocking error screen
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return (
-    <DashboardLayout>
-      <Outlet />
-    </DashboardLayout>
-  );
+  // Render the AppLayout with Outlet (children routes) regardless of config status
+  return <AppLayout><Outlet /></AppLayout>;
 };
 
 export default ProtectedRoute;

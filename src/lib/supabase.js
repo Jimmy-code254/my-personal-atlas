@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Get the Supabase URL and anonymous key from environment variables
@@ -7,21 +6,69 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Create a dummy Supabase client for development without environment variables
 const createDummyClient = () => {
-  console.warn('Using dummy Supabase client. Features requiring backend will not work.');
+  console.warn('Using dummy Supabase client. Features requiring backend will work in demo mode.');
   
-  // Return an object that mimics the Supabase client but doesn't make real API calls
+  // Return an object that mimics the Supabase client but with demo functionality
   return {
     auth: {
-      signInWithPassword: async () => ({ data: null, error: { message: 'Authentication unavailable in demo mode' } }),
-      signUp: async () => ({ data: null, error: { message: 'Registration unavailable in demo mode' } }),
+      signInWithPassword: async (credentials) => {
+        console.log('Demo login with:', credentials);
+        // Return success in demo mode with mock user data
+        return { 
+          data: { 
+            user: { 
+              id: 'demo-user-id',
+              email: credentials?.email || 'demo@example.com',
+              user_metadata: {
+                first_name: 'Demo',
+                last_name: 'User',
+              }
+            }, 
+            session: { user: { id: 'demo-user-id', email: credentials?.email || 'demo@example.com' } }
+          }, 
+          error: null 
+        };
+      },
+      signUp: async (credentials) => ({ 
+        data: { 
+          user: { 
+            id: 'demo-user-id', 
+            email: credentials?.email || 'demo@example.com',
+          } 
+        }, 
+        error: null 
+      }),
       signOut: async () => ({ error: null }),
-      getSession: async () => ({ data: { session: null }, error: null }),
+      getSession: async () => ({ 
+        data: { 
+          session: { 
+            user: { 
+              id: 'demo-user-id', 
+              email: 'demo@example.com',
+              user_metadata: {
+                first_name: 'Demo',
+                last_name: 'User',
+              }
+            } 
+          } 
+        }, 
+        error: null 
+      }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     },
-    from: () => ({
+    from: (table) => ({
       select: () => ({
         eq: () => ({
-          single: async () => ({ data: null, error: null }),
+          single: async () => {
+            // Return role data in demo mode
+            if (table === 'profiles') {
+              return { 
+                data: { role: 'student' }, 
+                error: null 
+              };
+            }
+            return { data: null, error: null };
+          },
         }),
         insert: async () => ({ data: null, error: null }),
       }),

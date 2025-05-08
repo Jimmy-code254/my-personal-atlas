@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import AppLayout from "./components/Layout/AppLayout";
 
 // Pages
 import Index from "./pages/Index";
@@ -46,25 +45,26 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admissions" element={<Admissions />} />
               
-              {/* Protected routes with AppLayout */}
+              {/* Protected routes with layout and navbar handled by ProtectedRoute */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-                <Route path="/courses" element={<AppLayout><Courses /></AppLayout>} />
-                <Route path="/assignments" element={<AppLayout><Assignments /></AppLayout>} />
-                <Route path="/calendar" element={<AppLayout><Calendar /></AppLayout>} />
-                <Route path="/messages" element={<AppLayout><Messages /></AppLayout>} />
-                <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
-                <Route path="/students" element={<AppLayout><Students /></AppLayout>} />
-                <Route path="/teachers" element={<AppLayout><Teachers /></AppLayout>} />
-                <Route path="/parents" element={<AppLayout><Parents /></AppLayout>} />
-                <Route path="/grades" element={<AppLayout><Grades /></AppLayout>} />
-                <Route path="/attendance" element={<AppLayout><Attendance /></AppLayout>} />
-                <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/assignments" element={<Assignments />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/students" element={<Students />} />
+                <Route path="/teachers" element={<Teachers />} />
+                <Route path="/parents" element={<Parents />} />
+                <Route path="/grades" element={<Grades />} />
+                <Route path="/attendance" element={<Attendance />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
