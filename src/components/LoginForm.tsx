@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormProps {
   onLogin?: () => void;
@@ -19,6 +20,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +38,19 @@ export function LoginForm({ onLogin }: LoginFormProps) {
       if (auth) {
         const success = await auth.login(username, password);
         if (success) {
+          toast({
+            title: "Login successful",
+            description: "Welcome to JimPortal!",
+          });
           if (onLogin) onLogin();
           navigate("/dashboard");
         }
       } else {
         // Fallback for demo mode
+        toast({
+          title: "Demo Mode Active",
+          description: "Logging in with demo credentials",
+        });
         if (onLogin) onLogin();
         navigate("/dashboard");
       }
