@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured, getSupabaseConfigStatus } from '../lib/supabase';
 import { useToast } from "@/hooks/use-toast";
 
 // Create the context
@@ -27,10 +27,12 @@ export const AuthProvider = ({ children }) => {
       console.error("Supabase is not properly configured. Please check your environment variables.");
       setConfigError(true);
       setLoading(false);
+      
+      // Show a toast notification but don't block the app from functioning
       toast({
-        title: "Configuration Error",
-        description: "Supabase is not properly configured. Please check the console for more information.",
-        variant: "destructive",
+        title: "Demo Mode Active",
+        description: "Backend features are limited. " + getSupabaseConfigStatus(),
+        variant: "warning",
         duration: 6000,
       });
       return;
@@ -115,11 +117,14 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     if (configError) {
       toast({
-        title: "Configuration Error",
-        description: "Authentication service is not available due to Supabase configuration issues.",
-        variant: "destructive",
+        title: "Demo Mode Active",
+        description: "Login is simulated in demo mode.",
+        variant: "warning",
       });
-      return false;
+      // In demo mode, simulate login with fake user data
+      setUser({ email, id: 'demo-user-id' });
+      setUserRole('student');
+      return true;
     }
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -147,11 +152,14 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, firstName, lastName, role) => {
     if (configError) {
       toast({
-        title: "Configuration Error",
-        description: "Registration service is not available due to Supabase configuration issues.",
-        variant: "destructive",
+        title: "Demo Mode Active",
+        description: "Registration is simulated in demo mode.",
+        variant: "warning",
       });
-      return false;
+      // In demo mode, simulate registration
+      setUser({ email, id: 'demo-user-id' });
+      setUserRole(role);
+      return true;
     }
     try {
       // Create auth user
@@ -210,6 +218,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     if (configError) {
+      // In demo mode, simulate logout
       setUser(null);
       setUserRole(null);
       toast({
@@ -234,7 +243,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Provide a default value for auth context even when Supabase is not configured
+  // Provide context value with auth functionality
   const contextValue = {
     user,
     userRole,
@@ -243,12 +252,16 @@ export const AuthProvider = ({ children }) => {
     login: async (email, password) => {
       if (configError) {
         toast({
-          title: "Configuration Error",
-          description: "Authentication service is not available due to Supabase configuration issues.",
-          variant: "destructive",
+          title: "Demo Mode Active",
+          description: "Login is simulated in demo mode.",
+          variant: "warning",
         });
-        return false;
+        // In demo mode, simulate login with fake user data
+        setUser({ email, id: 'demo-user-id' });
+        setUserRole('student');
+        return true;
       }
+      
       try {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         
@@ -274,12 +287,16 @@ export const AuthProvider = ({ children }) => {
     register: async (email, password, firstName, lastName, role) => {
       if (configError) {
         toast({
-          title: "Configuration Error",
-          description: "Registration service is not available due to Supabase configuration issues.",
-          variant: "destructive",
+          title: "Demo Mode Active",
+          description: "Registration is simulated in demo mode.",
+          variant: "warning",
         });
-        return false;
+        // In demo mode, simulate registration
+        setUser({ email, id: 'demo-user-id' });
+        setUserRole(role);
+        return true;
       }
+      
       try {
         // Create auth user
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -336,6 +353,7 @@ export const AuthProvider = ({ children }) => {
     },
     logout: async () => {
       if (configError) {
+        // In demo mode, simulate logout
         setUser(null);
         setUserRole(null);
         toast({
@@ -344,6 +362,7 @@ export const AuthProvider = ({ children }) => {
         });
         return;
       }
+      
       try {
         await supabase.auth.signOut();
         toast({
