@@ -68,7 +68,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
+        <div className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-3 rounded-md text-sm">
           {error}
         </div>
       )}
@@ -81,6 +81,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username or email"
+          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
         />
       </div>
       
@@ -92,6 +93,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
+          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
         />
       </div>
       
@@ -101,6 +103,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
             id="remember" 
             checked={rememberMe}
             onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+            className="data-[state=checked]:bg-blue-600"
           />
           <Label 
             htmlFor="remember" 
@@ -110,12 +113,16 @@ export function LoginForm({ onLogin }: LoginFormProps) {
           </Label>
         </div>
         
-        <Button type="button" variant="link" className="p-0 h-auto text-sm text-blue-600 dark:text-blue-400">
+        <Button type="button" variant="link" className="p-0 h-auto text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
           Forgot password?
         </Button>
       </div>
       
-      <Button type="submit" className="w-full" disabled={isLoading}>
+      <Button 
+        type="submit" 
+        className="w-full transition-all hover:scale-105 hover:shadow-md" 
+        disabled={isLoading}
+      >
         {isLoading ? "Signing in..." : "Sign In"}
       </Button>
     </form>

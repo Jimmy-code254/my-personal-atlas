@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DashboardLayout } from "@/components/Dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,12 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Mail, Phone, MapPin, GraduationCap, Book, Clock, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { User, Mail, Phone, MapPin, GraduationCap, Book, Clock, FileText, Calendar as CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 const Profile = () => {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
   
   const [profileData, setProfileData] = useState({
     firstName: "Jane",
@@ -73,24 +83,131 @@ const Profile = () => {
     });
   };
 
+  const handleAddEvent = () => {
+    if (!eventTitle || !selectedDate) {
+      toast({
+        title: "Missing information",
+        description: "Please provide at least an event title and date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // In a real app with Supabase, this would save the event to the database
+    toast({
+      title: "Event Added",
+      description: `"${eventTitle}" has been added to your calendar for ${format(selectedDate, 'MMMM d, yyyy')}`,
+    });
+
+    // Reset form
+    setEventTitle("");
+    setEventDescription("");
+    setEventTime("");
+    setEventLocation("");
+    setSelectedDate(undefined);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800">My Profile</h2>
-            <p className="text-gray-600">View and manage your student profile</p>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100">My Profile</h2>
+            <p className="text-gray-600 dark:text-gray-300">View and manage your student profile</p>
           </div>
           {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)}>
-              Edit Profile
-            </Button>
+            <div className="space-x-2">
+              <Button onClick={() => setIsEditing(true)} className="transition-all hover:scale-105">
+                Edit Profile
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="transition-all hover:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    Add Calendar Event
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New Event</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="event-title">Event Title</Label>
+                      <Input 
+                        id="event-title" 
+                        value={eventTitle}
+                        onChange={(e) => setEventTitle(e.target.value)}
+                        placeholder="Enter event title"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="event-date">Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="event-date"
+                            variant={"outline"}
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !selectedDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="event-time">Time</Label>
+                      <Input 
+                        id="event-time" 
+                        value={eventTime}
+                        onChange={(e) => setEventTime(e.target.value)}
+                        placeholder="e.g., 10:00 AM - 11:00 AM"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="event-location">Location</Label>
+                      <Input 
+                        id="event-location" 
+                        value={eventLocation}
+                        onChange={(e) => setEventLocation(e.target.value)}
+                        placeholder="e.g., Room 203"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="event-description">Description</Label>
+                      <Input 
+                        id="event-description" 
+                        value={eventDescription}
+                        onChange={(e) => setEventDescription(e.target.value)}
+                        placeholder="Enter event description"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleAddEvent} className="transition-all hover:scale-105">Add Event</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           ) : (
             <div className="space-x-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button variant="outline" onClick={() => setIsEditing(false)} className="transition-all hover:bg-red-50 dark:hover:bg-red-900/20">
                 Cancel
               </Button>
-              <Button onClick={handleProfileUpdate}>
+              <Button onClick={handleProfileUpdate} className="transition-all hover:scale-105">
                 Save Changes
               </Button>
             </div>
@@ -99,82 +216,82 @@ const Profile = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Info Card */}
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-1 hover:shadow-md transition-shadow">
             <CardHeader className="text-center">
-              <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-2 text-2xl font-bold">
+              <div className="w-24 h-24 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200 flex items-center justify-center mx-auto mb-2 text-2xl font-bold">
                 {profileData.firstName[0]}{profileData.lastName[0]}
               </div>
-              <CardTitle>{profileData.firstName} {profileData.lastName}</CardTitle>
-              <CardDescription>Student ID: {profileData.studentId}</CardDescription>
+              <CardTitle className="dark:text-white">{profileData.firstName} {profileData.lastName}</CardTitle>
+              <CardDescription className="dark:text-gray-300">Student ID: {profileData.studentId}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <Mail className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Email</h4>
-                    <p>{profileData.email}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</h4>
+                    <p className="dark:text-gray-200">{profileData.email}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Phone</h4>
-                    <p>{profileData.phone}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone</h4>
+                    <p className="dark:text-gray-200">{profileData.phone}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <MapPin className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Address</h4>
-                    <p>{profileData.address}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Address</h4>
+                    <p className="dark:text-gray-200">{profileData.address}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <Clock className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Date of Birth</h4>
-                    <p>{profileData.dateOfBirth}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Date of Birth</h4>
+                    <p className="dark:text-gray-200">{profileData.dateOfBirth}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <GraduationCap className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <GraduationCap className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Grade</h4>
-                    <p>Grade {profileData.grade}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Grade</h4>
+                    <p className="dark:text-gray-200">Grade {profileData.grade}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <User className="h-5 w-5 text-gray-500 mt-0.5" />
+                  <User className="h-5 w-5 text-gray-500 dark:text-gray-400 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Class Teacher</h4>
-                    <p>{profileData.classTeacher}</p>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Class Teacher</h4>
+                    <p className="dark:text-gray-200">{profileData.classTeacher}</p>
                   </div>
                 </div>
                 
-                <div className="pt-2 border-t">
-                  <h4 className="text-sm font-medium text-gray-500 mb-2">Bio</h4>
-                  <p className="text-sm">{profileData.bio}</p>
+                <div className="pt-2 border-t dark:border-gray-700">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Bio</h4>
+                  <p className="text-sm dark:text-gray-200">{profileData.bio}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           
           {/* Academic Info Card */}
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 hover:shadow-md transition-shadow">
             <Tabs defaultValue="records">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Academic Information</CardTitle>
+                  <CardTitle className="dark:text-white">Academic Information</CardTitle>
                   <TabsList>
-                    <TabsTrigger value="records">Records</TabsTrigger>
-                    <TabsTrigger value="attendance">Attendance</TabsTrigger>
-                    {isEditing && <TabsTrigger value="edit">Edit Profile</TabsTrigger>}
+                    <TabsTrigger value="records" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Records</TabsTrigger>
+                    <TabsTrigger value="attendance" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Attendance</TabsTrigger>
+                    {isEditing && <TabsTrigger value="edit" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">Edit Profile</TabsTrigger>}
                   </TabsList>
                 </div>
               </CardHeader>
@@ -184,37 +301,37 @@ const Profile = () => {
                     <div key={index}>
                       <div className="flex justify-between items-center mb-4">
                         <div>
-                          <h3 className="text-lg font-medium">{term.year}, {term.term}</h3>
-                          <p className="text-sm text-gray-500">GPA: {term.gpa}</p>
+                          <h3 className="text-lg font-medium dark:text-white">{term.year}, {term.term}</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">GPA: {term.gpa}</p>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20">
                           <FileText className="mr-2 h-4 w-4" />
                           Download Report
                         </Button>
                       </div>
                       
-                      <div className="rounded-md border overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                      <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                          <thead className="bg-gray-50 dark:bg-gray-800">
                             <tr>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Subject
                               </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Grade
                               </th>
-                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Teacher
                               </th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                             {term.grades.map((subject, index) => (
                               <tr key={index}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
-                                    <Book className="flex-shrink-0 h-4 w-4 text-gray-400 mr-2" />
-                                    <div className="text-sm font-medium text-gray-900">
+                                    <Book className="flex-shrink-0 h-4 w-4 text-gray-400 dark:text-gray-500 mr-2" />
+                                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                       {subject.subject}
                                     </div>
                                   </div>
@@ -222,16 +339,16 @@ const Profile = () => {
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <span className={`
                                     px-2 py-1 text-xs font-medium rounded-full
-                                    ${subject.grade.startsWith('A') ? 'bg-green-100 text-green-800' : ''}
-                                    ${subject.grade.startsWith('B') ? 'bg-blue-100 text-blue-800' : ''}
-                                    ${subject.grade.startsWith('C') ? 'bg-yellow-100 text-yellow-800' : ''}
-                                    ${subject.grade.startsWith('D') ? 'bg-orange-100 text-orange-800' : ''}
-                                    ${subject.grade.startsWith('F') ? 'bg-red-100 text-red-800' : ''}
+                                    ${subject.grade.startsWith('A') ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : ''}
+                                    ${subject.grade.startsWith('B') ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' : ''}
+                                    ${subject.grade.startsWith('C') ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : ''}
+                                    ${subject.grade.startsWith('D') ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' : ''}
+                                    ${subject.grade.startsWith('F') ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : ''}
                                   `}>
                                     {subject.grade}
                                   </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                   {subject.teacher}
                                 </td>
                               </tr>
@@ -246,34 +363,34 @@ const Profile = () => {
                 <TabsContent value="attendance">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-medium">Attendance Summary</h3>
-                      <p className="text-sm text-gray-500">Overall Attendance: {attendance.overall}</p>
+                      <h3 className="text-lg font-medium dark:text-white">Attendance Summary</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Overall Attendance: {attendance.overall}</p>
                     </div>
                     
-                    <div className="rounded-md border overflow-hidden">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <div className="rounded-md border dark:border-gray-700 overflow-hidden">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Month
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Attendance
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Absences
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                           {attendance.data.map((month, index) => (
                             <tr key={index}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {month.month}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
-                                  <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                  <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
                                     <div 
                                       className="bg-blue-600 h-2 rounded-full" 
                                       style={{ 
@@ -281,12 +398,12 @@ const Profile = () => {
                                       }}
                                     ></div>
                                   </div>
-                                  <span className="text-sm text-gray-900">
+                                  <span className="text-sm text-gray-900 dark:text-gray-100">
                                     {month.percentage}
                                   </span>
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 {month.absences} days
                               </td>
                             </tr>
@@ -302,57 +419,63 @@ const Profile = () => {
                     <form className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
+                          <Label htmlFor="firstName" className="dark:text-gray-200">First Name</Label>
                           <Input 
                             id="firstName" 
                             value={profileData.firstName}
                             onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                            className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
+                          <Label htmlFor="lastName" className="dark:text-gray-200">Last Name</Label>
                           <Input 
                             id="lastName" 
                             value={profileData.lastName}
                             onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                            className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                           />
                         </div>
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="dark:text-gray-200">Email</Label>
                         <Input 
                           id="email" 
                           type="email" 
                           value={profileData.email}
                           onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
+                        <Label htmlFor="phone" className="dark:text-gray-200">Phone</Label>
                         <Input 
                           id="phone" 
                           value={profileData.phone}
                           onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="address">Address</Label>
+                        <Label htmlFor="address" className="dark:text-gray-200">Address</Label>
                         <Input 
                           id="address" 
                           value={profileData.address}
                           onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                         />
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="bio">Bio</Label>
+                        <Label htmlFor="bio" className="dark:text-gray-200">Bio</Label>
                         <Input 
                           id="bio" 
                           value={profileData.bio}
                           onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                          className="hover:border-blue-400 focus:border-blue-500 transition-colors"
                         />
                       </div>
                     </form>

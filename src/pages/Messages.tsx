@@ -130,11 +130,11 @@ const Messages = () => {
   return (
     <DashboardLayout>
       <div className="h-[calc(100vh-12rem)] flex flex-col">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Messages</h2>
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">Messages</h2>
         
         <div className="flex h-full rounded-lg overflow-hidden border">
           {/* Conversations Sidebar */}
-          <div className="w-80 border-r bg-white flex flex-col">
+          <div className="w-80 border-r bg-white dark:bg-gray-800 flex flex-col">
             <div className="p-4 border-b">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -152,25 +152,25 @@ const Messages = () => {
                   key={conversation.id}
                   onClick={() => setActiveChat(conversation.id)}
                   className={`
-                    p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors
-                    ${activeChat === conversation.id ? 'bg-blue-50' : ''}
+                    p-4 border-b cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors
+                    ${activeChat === conversation.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''}
                   `}
                 >
                   <div className="flex items-center">
                     <div className={`
                       w-10 h-10 rounded-full flex items-center justify-center text-white font-medium mr-3
-                      ${activeChat === conversation.id ? 'bg-blue-600' : 'bg-gray-500'}
+                      ${activeChat === conversation.id ? 'bg-blue-600' : 'bg-gray-500 dark:bg-gray-600'}
                     `}>
                       {conversation.avatar}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center">
-                        <h4 className="font-medium truncate">{conversation.person}</h4>
-                        <span className="text-xs text-gray-500">{conversation.time}</span>
+                        <h4 className="font-medium truncate dark:text-white">{conversation.person}</h4>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{conversation.time}</span>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
-                      <p className="text-xs text-gray-500">{conversation.role}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 truncate">{conversation.lastMessage}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{conversation.role}</p>
                     </div>
                     
                     {conversation.unread > 0 && (
@@ -183,7 +183,7 @@ const Messages = () => {
               ))}
             </div>
             
-            <div className="p-4 border-t">
+            <div className="p-4 border-t dark:border-gray-700">
               <Button className="w-full">
                 <Plus className="mr-2 h-4 w-4" />
                 New Message
@@ -192,11 +192,11 @@ const Messages = () => {
           </div>
           
           {/* Chat Area */}
-          <div className="flex-1 flex flex-col bg-gray-50">
+          <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900">
             {activeConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b bg-white flex items-center justify-between">
+                <div className="p-4 border-b bg-white dark:bg-gray-800 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className={`
                       w-10 h-10 rounded-full flex items-center justify-center text-white font-medium mr-3
@@ -204,23 +204,23 @@ const Messages = () => {
                     `}>
                       {activeConversation.avatar}
                       {activeConversation.online && (
-                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
                       )}
                     </div>
                     <div>
-                      <h4 className="font-medium">{activeConversation.person}</h4>
-                      <p className="text-xs text-gray-500">{activeConversation.online ? "Online" : "Offline"}</p>
+                      <h4 className="font-medium dark:text-white">{activeConversation.person}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{activeConversation.online ? "Online" : "Offline"}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-700">
                       <Phone className="h-5 w-5" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-700">
                       <Video className="h-5 w-5" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="hover:bg-gray-100 dark:hover:bg-gray-700">
                       <User className="h-5 w-5" />
                     </Button>
                   </div>
@@ -241,13 +241,13 @@ const Messages = () => {
                           max-w-[80%] px-4 py-2 rounded-lg
                           ${message.isMe 
                             ? 'bg-blue-600 text-white rounded-br-none' 
-                            : 'bg-white border rounded-bl-none'
+                            : 'bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-bl-none dark:text-gray-100'
                           }
                         `}>
                           <p>{message.content}</p>
                           <span className={`
                             text-xs block mt-1 
-                            ${message.isMe ? 'text-blue-200' : 'text-gray-500'}
+                            ${message.isMe ? 'text-blue-200' : 'text-gray-500 dark:text-gray-400'}
                           `}>
                             {message.time}
                           </span>
@@ -258,7 +258,7 @@ const Messages = () => {
                 </div>
                 
                 {/* Message Input */}
-                <div className="p-4 border-t bg-white">
+                <div className="p-4 border-t bg-white dark:bg-gray-800 dark:border-gray-700">
                   <div className="flex items-center">
                     <Input 
                       type="text"
@@ -273,7 +273,7 @@ const Messages = () => {
                         }
                       }}
                     />
-                    <Button onClick={handleSendMessage}>
+                    <Button onClick={handleSendMessage} className="transition-all hover:scale-105">
                       <Send className="h-4 w-4" />
                     </Button>
                   </div>
@@ -282,9 +282,9 @@ const Messages = () => {
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium">No conversation selected</h3>
-                  <p className="text-gray-500">Choose a conversation from the sidebar</p>
+                  <MessageSquare className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+                  <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No conversation selected</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Choose a conversation from the sidebar</p>
                 </div>
               </div>
             )}
